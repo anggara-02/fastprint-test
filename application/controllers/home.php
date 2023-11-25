@@ -57,7 +57,6 @@ class home extends CI_Controller
     public function store_data()
     {
         $data = $this->data();
-        
         $kategori   = [];
         $status     = [];
     
@@ -112,8 +111,22 @@ class home extends CI_Controller
         echo json_encode($query);
     }
 
-    public function edit_by_id(){
+    public function update_by_id(){
+        $this->validation();
+        $data_update['data'] = array(
+            'nama_produk'   => $_POST['nama_produk_edit'],
+            'kategori_id'   => $_POST['kategori_edit'],
+            'harga'         => $_POST['harga_edit'],
+            'status_id'     => $_POST['status']
+        );
+        $data_update['id_produk'] = $_POST['id_produk'];
 
+        $query = $this->model->update_by_id($data_update);
+        
+        $this->session->set_flashdata('status', $query['status']);
+        $this->session->set_flashdata('msg', $query['msg'] );
+
+        echo json_encode($query);
     }
 
     public function get_by_id(){
@@ -129,5 +142,28 @@ class home extends CI_Controller
         $query['status_produk'] = $this->model->get_status();
         
         echo json_encode($query);
+    }
+
+    public function validation(){
+        $json = array();
+        $json['inputerror'] = array();
+        $json['msg']        = array();
+        $json['status']     = true;
+
+        if ($_POST['nama_produk_edit'] == '') {
+            $json['inputerror'] = 'nama_produk_edit';
+            $json['msg']        = 'Nama produk tidak boleh kosong';
+            $json['status']     = false;
+        }
+
+        if (!is_numeric($_POST['harga_edit']) || $_POST['harga_edit'] == '') {
+            $json['inputerror'] = 'harga_edit';
+            $json['msg']        = 'Harga harus numeric dan tidak boleh kosong';
+            $json['status']     = false;
+        }
+
+        if ($json['status'] == false) {
+            echo json_encode($json);
+        }
     }
 }

@@ -39,7 +39,6 @@
                             <button class="btn btn-warning" type="button">Syncron Produk</button>
                         </div>
                         <div class="col-md-6" style="text-align:end;">
-                            <!-- <button class="btn btn-primary" type="button">Add Produk</button> -->
                             <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                                 data-bs-target="#modal_add_produk" data-bs-whatever="Add Produk">Add Produk</button>
                         </div>
@@ -57,6 +56,14 @@
                     </table>
                 </div>
 
+            </div>
+        </div>
+    </div>
+
+    <div class="toast-container position-fixed top-0 end-0 end-0 p-3">
+        <div id=" liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
+            <div class="toast-body text-bg-danger">
+                Hello, world! This is a toast message.
             </div>
         </div>
     </div>
@@ -104,11 +111,16 @@
                     <h1 class="modal-title fs-5" id="modal_edit_produkLabel">Edit Produk</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <form>
+                <div class="modal-body mb-3">
+                    <div class="alert alert-danger fade show" role="alert" id="validation_errors" hidden>
+                        <div class="message">
+                            <strong class="msg_erros"></strong>.
+                        </div>
+                    </div>
+                    <form style="margin-bottom:50px">
                         <div class="mb-3">
                             <label for="recipient-name" class="col-form-label">Nama Produk</label>
-                            <input type="text" class="form-control" id="nama_produk_edit">
+                            <input type="text" name="nama_produk_edit" class="form-control" id="nama_produk_edit">
                         </div>
                         <div class="mb-3">
                             <label for="message-text" class="col-form-label">Kategori Produk</label>
@@ -116,21 +128,16 @@
                         </div>
                         <div class="mb-3">
                             <label for="message-text" class="col-form-label">Harga</label>
-                            <input type="text" name="harga" id="harga_edit" class="form-control">
-                        </div>
-                        <div class="mb-3">
-                            <label for="message-text" class="col-form-label">Status</label>
-                            <select class="form-select" aria-label="Default select example" id="status">
-                                <!-- <option selected>- Pilih Status -</option>
-                                <option value="1">Dijual</option>
-                                <option value="2">Tidak Dijual</option> -->
-                            </select>
-                        </div>
+                            <input type="text" name="harga_edit" id="harga_edit" class="form-control">
+                            <div class="mb-3">
+                                <label for="message-text" class="col-form-label">Status</label>
+                                <select class="form-select" aria-label="Default select example" id="status"></select>
+                            </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="simpan">Simpan</button>
+                    <button type="button" class="btn btn-warning" id="update_button">Update</button>
                 </div>
             </div>
         </div>
@@ -152,9 +159,38 @@
     $(document).ready(function() {
         loadData();
         setTimeout(function() {
-            // Fadeto(s) untuk durasi lamanya alert, slideup(kecepatan alert hide)
-            $("#alert_message").fadeTo(2000, 1).slideUp(1000);
+            $("#alert_message").fadeTo(2000, 1).slideUp(
+                1000); // Fadeto(s) untuk durasi lamanya alert, slideup(kecepatan alert hide)
         });
+
+
+        // Tombol update produk pada modal
+        $('#update_button').on('click', function(e) {
+            e.preventDefault();
+            let id = $(this).attr('data-id')
+            let data = {
+                id_produk: id,
+                nama_produk_edit: $('#nama_produk_edit').val(),
+                harga_edit: $('#harga_edit').val(),
+                kategori_edit: $('#kategori_edit').val(),
+                status: $('#status').val(),
+            };
+            console.log(data);
+
+            $.ajax({
+                url: '<?= base_url('home/update_by_id');?>',
+                method: 'POST',
+                dataType: 'JSON',
+                data: data,
+                success: function(res) {
+                    console.log(res);
+                    if (res.status == 200) {
+                        $('#modal_edit_produk').modal('hide')
+                        window.location.reload();
+                    }
+                }
+            })
+        })
     })
 
     function loadData() {
@@ -224,7 +260,29 @@
         });
     }
 
+    function update(id) {
+        let data = {
+            id_produk: id,
+            nama_produk: $('#nama_produk_edit').val(),
+            harga: $('#harga_edit').val(),
+            kategori: $('#kategori_edit').val(),
+            status: $('#status').val(),
+        };
+        console.log(data);
+
+        $.ajax({
+            url: '<?= base_url('home/update_by_id');?>',
+            method: 'POST',
+            dataType: 'JSON',
+            data: data,
+            success: function(res) {
+                console.log(res);
+            }
+        })
+    }
+
     function edit_produk(id) {
+        $('#update_button').attr('data-id', id)
         $.ajax({
             url: '<?= base_url('home/get_by_id') ?>',
             method: 'POST',
@@ -233,16 +291,16 @@
             },
             dataType: 'JSON',
             success: function(res) {
-                if (res.status == 200) {
-                    console.log(res);
+                let html = '<option value="0">- Pilih Status -</option>';
 
-                    let html = '<option value="0">- Pilih Status -</option>';
+                if (res.status == 200) {
                     res.kategori.data.forEach(data => {
                         html += '<option value="' + data.id_kategori +
                             '">' + data.nama_kategori + '</option>';
                     });
                     $('#kategori_edit').append(html);
 
+                    // reset var/kosongkan var untuk digunakan field status
                     html = '';
                     res.status_produk.data.forEach(data => {
                         html += '<option value="' + data.id_status +

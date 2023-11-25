@@ -7,17 +7,15 @@ class HomeModel extends CI_Model{
         $tempKategori = [];
         $tempStatus = [];
 
-        /* Get data dari table produk */
-        $query_produk   = $this->db->get('produk');
-        
         /* Jalankan untuk cek db kategori dan status */
         $this->check_db($json_data);
         
-        /* Select/GET data dari table status dan kategori */
+        /* Select/GET data dari table status dan kategori setelah insert pada code di atas*/
         $get_status = $this->db->get('status')->result();
         $get_kategori = $this->db->get('kategori')->result();
-
+        
         /* Cek jika table produk kosong maka insert data */ 
+        $query_produk   = $this->db->get('produk');
         if ($query_produk->num_rows() <= 0 ) {
             /*  Bentuk array untuk mencari id kategori dan id status untuk data produk 
                 ==> Looping untuk merubah value 'kategori' menjadi 'id_kategori' yang didapat dari table kategori. 
@@ -27,7 +25,6 @@ class HomeModel extends CI_Model{
             */
             foreach($json_data['produk'] as $key => $row) {
                 foreach ($get_kategori as $value_kategori) {
-
                     /* Jika kategori sama dengan nama kategori pada table kategori*/
                     if ($row['kategori'] == $value_kategori->nama_kategori) {
                         $tempKategori[] = [
@@ -72,39 +69,6 @@ class HomeModel extends CI_Model{
         // ];
     } 
 
-    public function get_datatable(){
-        $this->db->from('produk');
-        $this->db->where(array('status_id' => '1'));
-        $this->db->order_by('id_produk', 'DESC');
-        $query = $this->db->get();
-
-        $data = [];
-        foreach ($query->result() as $key => $value) {
-            $data[] = [
-                'id_produk'     => $value->id_produk,
-                'nama_produk'   => $value->nama_produk,
-                'kategori'      => $this->kategori_name($value->kategori_id),
-                'harga'         => $value->harga,
-            ];
-        }
-
-        $json['data'] = $data;
-        $json['total_data'] = $query->num_rows();
-        
-        return $json;
-    }
-
-    //Mencari nama kategori berdasarkan id_kategori
-    public function kategori_name($id){
-        $query = $this->db->get_where('kategori', array('id_kategori' => $id));
-        
-        $kategori_name = '';
-        foreach ($query->result() as $key => $value) {
-            $kategori_name = $value->nama_kategori;
-        }
-        return $kategori_name;
-    }
-
     /*======================== CEK & INSERT JIKA TABLE KATEGORI DAN STATUS KOSONG ===========================*/
     public function check_db($json_data){
         $query_kategori = $this->db->get('kategori');
@@ -129,6 +93,41 @@ class HomeModel extends CI_Model{
         }
     }
 
+    /* Get data untuk di tamplikan ke view menggunakan dataTable */
+    public function get_datatable(){
+        $this->db->from('produk');
+        $this->db->where(array('status_id' => '1')); /* tampilkan hanya 'status' = 'dijual' */
+        $this->db->order_by('id_produk', 'DESC');
+        $query = $this->db->get();
+
+        $data = [];
+        foreach ($query->result() as $key => $value) {
+            $data[] = [
+                'id_produk'     => $value->id_produk,
+                'nama_produk'   => $value->nama_produk,
+                'kategori'      => $this->kategori_name($value->kategori_id),
+                'harga'         => $value->harga,
+            ];
+        }
+
+        $json['data'] = $data;
+        $json['total_data'] = $query->num_rows();
+        
+        return $json;
+    }
+
+    /* Mencari nama kategori berdasarkan id_kategori */
+    public function kategori_name($id){
+        $query = $this->db->get_where('kategori', array('id_kategori' => $id));
+        
+        $kategori_name = '';
+        foreach ($query->result() as $key => $value) {
+            $kategori_name = $value->nama_kategori;
+        }
+        return $kategori_name;
+    }
+
+    /* Dipuruntukan menampilkan kategori dan status dengan select opt */
     public function get_kategori(){
         $query = $this->db->get('kategori');
 
@@ -159,6 +158,7 @@ class HomeModel extends CI_Model{
         return $json;
     }
 
+    /* Hapus data berdasar id_produk pada table produk */
     public function delete_by_id($id){
         $this->db->where('id_produk', $id);
         $query = $this->db->delete('produk');
@@ -169,6 +169,7 @@ class HomeModel extends CI_Model{
         ];
     }
 
+    /* Get daya bersarakna id_produk */
     public function get_by_id($id){
         $this->db->where('id_produk', $id);
         $query = $this->db->get('produk');
@@ -183,5 +184,16 @@ class HomeModel extends CI_Model{
         }
 
         return $json;
+    }
+
+    /* Update data produk by id */
+    public function update_by_id($data){
+        $this->db->where('id_produk', $data['id_produk']);
+        $this->db->update('produk', $data['data']);
+
+        return [
+            'msg' => 'DATA BERHASIL DI UPDATE', 
+            'status' => 200
+        ];
     }
 }
