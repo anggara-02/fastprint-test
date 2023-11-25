@@ -81,7 +81,7 @@ class HomeModel extends CI_Model{
         $data = [];
         foreach ($query->result() as $key => $value) {
             $data[] = [
-                'id_produk'            => $value->id_produk,
+                'id_produk'     => $value->id_produk,
                 'nama_produk'   => $value->nama_produk,
                 'kategori'      => $this->kategori_name($value->kategori_id),
                 'harga'         => $value->harga,
@@ -94,6 +94,7 @@ class HomeModel extends CI_Model{
         return $json;
     }
 
+    //Mencari nama kategori berdasarkan id_kategori
     public function kategori_name($id){
         $query = $this->db->get_where('kategori', array('id_kategori' => $id));
         
@@ -128,14 +129,59 @@ class HomeModel extends CI_Model{
         }
     }
 
+    public function get_kategori(){
+        $query = $this->db->get('kategori');
+
+        if ($query->num_rows() > 0) {
+            $json['status'] = 200;
+            $json['msg'] = 'DATA DI TEMUKAN';
+            $json['data'] = $query->result();
+        } else {
+            $json['status'] = 200;
+            $json['msg'] = 'DATA DI TEMUKAN';
+        }        
+
+        return $json;
+    }
+    
+    public function get_status(){
+        $query = $this->db->get('status');
+
+        if ($query->num_rows() > 0) {
+            $json['status'] = 200;
+            $json['msg'] = 'DATA DI TEMUKAN';
+            $json['data'] = $query->result();
+        } else {
+            $json['status'] = 200;
+            $json['msg'] = 'DATA DI TEMUKAN';
+        }        
+
+        return $json;
+    }
+
     public function delete_by_id($id){
         $this->db->where('id_produk', $id);
         $query = $this->db->delete('produk');
 
         return [
-            'msg' => 'Data Terhapus!', 
+            'msg' => 'DATA BERHASIL DI HAPUS', 
             'status' => 200
         ];
     }
-    
+
+    public function get_by_id($id){
+        $this->db->where('id_produk', $id);
+        $query = $this->db->get('produk');
+        $json = [];
+        if ($query->num_rows() > 0) {
+            $json['status'] = 200;
+            $json['msg'] = 'DATA DI TEMUKAN';
+            $json['data'] = $query->result();
+        }else{
+            $json['status'] = 404;
+            $json['msg'] = 'DATA TIDAK DI TEMUKAN';
+        }
+
+        return $json;
+    }
 }

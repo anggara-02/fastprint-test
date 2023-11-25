@@ -87,8 +87,8 @@ class home extends CI_Controller
         
         $no = 1;
         foreach ($result_data['data'] as $key => $value) {
-            $action = '<a href="#" class="btn btn-info btn-icon" data-id="'.$value['id_produk'].'"><i class="fa fa-edit"></i></a>';
-            $action .= '<button class="btn btn-danger btn-icon" onClick="swal_alert('.$value['id_produk'].')" data-id='.$value['id_produk'].'"><i class="fa fa-trash"></i></button>';
+            $action = '<button type="button" class="btn btn-primary btn-small" style="margin-right: 5px;" onCLick="edit_produk('.$value['id_produk'].')" data-id='.$value['id_produk'].'"><i class="fa fa-edit"></i></button>';
+            $action .= '<button type="button" class="btn btn-danger btn-small" style="margin-left: 5px;" onClick="delete_produk('.$value['id_produk'].')" data-id='.$value['id_produk'].'"><i class="fa fa-trash"></i></button>';
             $data = array(
                 'no'            => $no,
                 'nama_produk'   => $value['nama_produk'],
@@ -106,9 +106,28 @@ class home extends CI_Controller
         $id = $_POST['id_produk'];    
         $query = $this->model->delete_by_id($id);
 
-        $this->session->set_flashdata('status', 200);
-        $this->session->set_flashdata('success',$query['msg'] );
+        $this->session->set_flashdata('status', $query['status']);
+        $this->session->set_flashdata('msg',$query['msg'] );
 
+        echo json_encode($query);
+    }
+
+    public function edit_by_id(){
+
+    }
+
+    public function get_by_id(){
+        $id = $_POST['id_produk'];
+        $query = $this->model->get_by_id($id);
+        
+        if ($query['status'] != 200) {
+            $this->session->set_flashdata('status', $query['status']);
+            $this->session->set_flashdata('msg',$query['msg'] );
+        }
+
+        $query['kategori'] = $this->model->get_kategori();
+        $query['status_produk'] = $this->model->get_status();
+        
         echo json_encode($query);
     }
 }
