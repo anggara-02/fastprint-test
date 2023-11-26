@@ -76,6 +76,7 @@
                         </div>
                     </div>
                     <form style="margin-bottom:50px" id="form_produk">
+                        <input type="hidden" name="id" id="id_produk_hidden">
                         <div class="mb-3">
                             <label class="col-form-label">Nama Produk</label>
                             <input type="text" name="nama_produk" class="form-control" value="">
@@ -117,9 +118,6 @@
         </div>
     </div>
 
-    <input type="hidden" name="id" id="id_produk_hidden">
-
-
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
     <script src="https://cdn.datatables.net/1.13.7/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
@@ -129,9 +127,7 @@
         integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r" crossorigin="anonymous">
     </script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
-
-    <script t ype="text/javascript">
+    <script type="text/javascript">
     $(document).ready(function() {
         loadData();
         setTimeout(function() {
