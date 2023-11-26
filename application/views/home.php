@@ -35,10 +35,10 @@
                     <!-- End Flash data     -->
 
                     <div class="d-flex m-3">
-                        <div class="col-md-6">
-                            <button class="btn btn-warning" type="button">Syncron Produk</button>
-                        </div>
-                        <div class="col-md-6" style="text-align:end;">
+                        <!-- <div class="col-md-6">
+                            <button class="btn btn-warning" type="button" id="sync_button">Syncron Produk</button>
+                        </div> -->
+                        <div class="col-md-12" style="text-align:end;">
                             <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                                 data-bs-target="#modal_add_produk" data-bs-whatever="Add Produk">Add Produk</button>
                         </div>
@@ -120,7 +120,8 @@
                     <form style="margin-bottom:50px">
                         <div class="mb-3">
                             <label for="recipient-name" class="col-form-label">Nama Produk</label>
-                            <input type="text" name="nama_produk_edit" class="form-control" id="nama_produk_edit">
+                            <input type="text" name="nama_produk_edit" class="form-control">
+                            <div class="invalid-feedback msg-invalid"></div>
                         </div>
                         <div class="mb-3">
                             <label for="message-text" class="col-form-label">Kategori Produk</label>
@@ -129,10 +130,12 @@
                         <div class="mb-3">
                             <label for="message-text" class="col-form-label">Harga</label>
                             <input type="text" name="harga_edit" id="harga_edit" class="form-control">
-                            <div class="mb-3">
-                                <label for="message-text" class="col-form-label">Status</label>
-                                <select class="form-select" aria-label="Default select example" id="status"></select>
-                            </div>
+                            <div class="invalid-feedback msg-invalid"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="message-text" class="col-form-label">Status</label>
+                            <select class="form-select" aria-label="Default select example" id="status"></select>
+                        </div>
                     </form>
                 </div>
                 <div class="modal-footer">
@@ -163,19 +166,24 @@
                 1000); // Fadeto(s) untuk durasi lamanya alert, slideup(kecepatan alert hide)
         });
 
+        $('#modal_edit_produk').on('hidden.bs.modal', function() {
+            $('.form-control').removeClass('is-invalid')
+            $('.msg-invalid').hide()
+        });
+
 
         // Tombol update produk pada modal
         $('#update_button').on('click', function(e) {
             e.preventDefault();
             let id = $(this).attr('data-id')
+
             let data = {
                 id_produk: id,
-                nama_produk_edit: $('#nama_produk_edit').val(),
+                nama_produk_edit: $('input[name=nama_produk_edit]').val(),
                 harga_edit: $('#harga_edit').val(),
                 kategori_edit: $('#kategori_edit').val(),
                 status: $('#status').val(),
             };
-            console.log(data);
 
             $.ajax({
                 url: '<?= base_url('home/update_by_id');?>',
@@ -183,10 +191,19 @@
                 dataType: 'JSON',
                 data: data,
                 success: function(res) {
-                    console.log(res);
+                    $('.form-control').removeClass('is-invalid')
+                    // $('.msg-invalid').hide()
+
                     if (res.status == 200) {
                         $('#modal_edit_produk').modal('hide')
                         window.location.reload();
+                    } else {
+                        for (let i = 0; i < res.inputerror.length; i++) {
+                            $('input[name=' + res.inputerror[i] + ']').addClass(
+                                'is-invalid')
+                            $('input[name=' + res.inputerror[i] + ']').next().text(res.msg[
+                                i])
+                        }
                     }
                 }
             })
@@ -260,29 +277,30 @@
         });
     }
 
-    function update(id) {
-        let data = {
-            id_produk: id,
-            nama_produk: $('#nama_produk_edit').val(),
-            harga: $('#harga_edit').val(),
-            kategori: $('#kategori_edit').val(),
-            status: $('#status').val(),
-        };
-        console.log(data);
+    // function update(id) {
+    //     let data = {
+    //         id_produk: id,
+    //         nama_produk: $('#nama_produk_edit').val(),
+    //         harga: $('#harga_edit').val(),
+    //         kategori: $('#kategori_edit').val(),
+    //         status: $('#status').val(),
+    //     };
 
-        $.ajax({
-            url: '<?= base_url('home/update_by_id');?>',
-            method: 'POST',
-            dataType: 'JSON',
-            data: data,
-            success: function(res) {
-                console.log(res);
-            }
-        })
-    }
+    //     $.ajax({
+    //         url: '<?= base_url('home/update_by_id');?>',
+    //         method: 'POST',
+    //         dataType: 'JSON',
+    //         data: data,
+    //         success: function(res) {
+    //             console.log(res);
+    //         }
+    //     })
+    // }
 
     function edit_produk(id) {
         $('#update_button').attr('data-id', id)
+        $('.msg-invalid').attr('data-id', id)
+
         $.ajax({
             url: '<?= base_url('home/get_by_id') ?>',
             method: 'POST',
@@ -300,7 +318,7 @@
                     });
                     $('#kategori_edit').append(html);
 
-                    // reset var/kosongkan var untuk digunakan field status
+                    // reset var/kosongkan var untuk digunakan di field status
                     html = '';
                     res.status_produk.data.forEach(data => {
                         html += '<option value="' + data.id_status +
@@ -308,10 +326,12 @@
                     })
                     $('#status').append(html);
 
-                    // Menampilkan modal ambil data dari ajak untuk di edit di form edit
+                    // Menampilkan modal 
                     $('#modal_edit_produk').modal('show')
+
+                    // isi tiap field form edit
                     res.data.forEach(data => {
-                        $('#nama_produk_edit').val(data.nama_produk);
+                        $('input[name=nama_produk_edit]').val(data.nama_produk);
                         $('#kategori_edit').val(data.kategori_id);
                         $('#harga_edit').val(data.harga);
                         $('#status').val(data.status_id);

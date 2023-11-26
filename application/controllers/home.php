@@ -73,7 +73,9 @@ class home extends CI_Controller
 
         $json_data = array('kategori' => $kategori, 'status' => $status, 'produk' => $data['data']);
         $data_store = $this->model->store_data($json_data);
-        
+
+        $this->session->set_flashdata('status', 200);
+        $this->session->set_flashdata('msg','Berhasil Syncron dengan API dan insert ke database');
     }
 
     public function get_datatable(){
@@ -112,7 +114,9 @@ class home extends CI_Controller
     }
 
     public function update_by_id(){
+        // Validasi terlebih dahulu
         $this->validation();
+
         $data_update['data'] = array(
             'nama_produk'   => $_POST['nama_produk_edit'],
             'kategori_id'   => $_POST['kategori_edit'],
@@ -151,19 +155,21 @@ class home extends CI_Controller
         $json['status']     = true;
 
         if ($_POST['nama_produk_edit'] == '') {
-            $json['inputerror'] = 'nama_produk_edit';
-            $json['msg']        = 'Nama produk tidak boleh kosong';
-            $json['status']     = false;
+            $json['inputerror'][]           = 'nama_produk_edit';
+            $json['msg'][]                  = 'Nama produk tidak boleh kosong';
+            $json['status']                 = false;
         }
-
+        
+        // print_r(!is_numeric($_POST['harga_edit']));die;
         if (!is_numeric($_POST['harga_edit']) || $_POST['harga_edit'] == '') {
-            $json['inputerror'] = 'harga_edit';
-            $json['msg']        = 'Harga harus numeric dan tidak boleh kosong';
-            $json['status']     = false;
+            $json['inputerror'][]           = 'harga_edit';
+            $json['msg'][]                  = 'Harga tidak boleh kosong dan harus numeric';
+            $json['status']                 = false;
         }
-
+ 
         if ($json['status'] == false) {
             echo json_encode($json);
+            exit();
         }
     }
 }
