@@ -13,7 +13,10 @@ class home extends CI_Controller
 
     public function index()
     {
-        $this->load->view('home');
+        $query['kategori'] = $this->model->get_kategori();
+        $query['status'] = $this->model->get_status();
+
+        $this->load->view('home', $query);
     }
 
     public function data()
@@ -76,6 +79,8 @@ class home extends CI_Controller
 
         $this->session->set_flashdata('status', 200);
         $this->session->set_flashdata('msg','Berhasil Syncron dengan API dan insert ke database');
+
+        echo json_encode($json['status'] =200);
     }
 
     public function get_datatable(){
@@ -113,19 +118,23 @@ class home extends CI_Controller
         echo json_encode($query);
     }
 
-    public function update_by_id(){
+    public function update_or_save(){
         // Validasi terlebih dahulu
         $this->validation();
 
         $data_update['data'] = array(
-            'nama_produk'   => $_POST['nama_produk_edit'],
-            'kategori_id'   => $_POST['kategori_edit'],
-            'harga'         => $_POST['harga_edit'],
+            'nama_produk'   => $_POST['nama_produk'],
+            'kategori_id'   => $_POST['kategori'],
+            'harga'         => $_POST['harga'],
             'status_id'     => $_POST['status']
         );
-        $data_update['id_produk'] = $_POST['id_produk'];
 
-        $query = $this->model->update_by_id($data_update);
+        if ($_POST['id_produk'] == 0) {
+            $query = $this->model->save($data_update);
+        }else{
+            $data_update['id_produk'] = $_POST['id_produk'];
+            $query = $this->model->update_by_id($data_update);
+        }
         
         $this->session->set_flashdata('status', $query['status']);
         $this->session->set_flashdata('msg', $query['msg'] );
@@ -141,9 +150,6 @@ class home extends CI_Controller
             $this->session->set_flashdata('status', $query['status']);
             $this->session->set_flashdata('msg',$query['msg'] );
         }
-
-        $query['kategori'] = $this->model->get_kategori();
-        $query['status_produk'] = $this->model->get_status();
         
         echo json_encode($query);
     }
@@ -154,17 +160,22 @@ class home extends CI_Controller
         $json['msg']        = array();
         $json['status']     = true;
 
-        if ($_POST['nama_produk_edit'] == '') {
-            $json['inputerror'][]           = 'nama_produk_edit';
+        if ($_POST['nama_produk'] == '') {
+            $json['inputerror'][]           = 'nama_produk';
             $json['msg'][]                  = 'Nama produk tidak boleh kosong';
             $json['status']                 = false;
         }
         
-        // print_r(!is_numeric($_POST['harga_edit']));die;
-        if (!is_numeric($_POST['harga_edit']) || $_POST['harga_edit'] == '') {
-            $json['inputerror'][]           = 'harga_edit';
-            $json['msg'][]                  = 'Harga tidak boleh kosong dan harus numeric';
-            $json['status']                 = false;
+        if ($_POST['harga'] == '') {
+                $json['inputerror'][]           = 'harga';
+                $json['msg'][]                  = 'Harga tidak boleh kosong';
+                $json['status']                 = false;
+        }else{
+            if (!is_numeric($_POST['harga'])) {
+                $json['inputerror'][]           = 'harga';
+                $json['msg'][]                  = 'Harga harus angka';
+                $json['status']                 = false;
+            }
         }
  
         if ($json['status'] == false) {

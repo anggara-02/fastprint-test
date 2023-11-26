@@ -158,17 +158,6 @@ class HomeModel extends CI_Model{
         return $json;
     }
 
-    /* Hapus data berdasar id_produk pada table produk */
-    public function delete_by_id($id){
-        $this->db->where('id_produk', $id);
-        $query = $this->db->delete('produk');
-
-        return [
-            'msg' => 'DATA BERHASIL DI HAPUS', 
-            'status' => 200
-        ];
-    }
-
     /* Get daya bersarakna id_produk */
     public function get_by_id($id){
         $this->db->where('id_produk', $id);
@@ -186,6 +175,20 @@ class HomeModel extends CI_Model{
         return $json;
     }
 
+    public function save($data){
+        unset($data['id_produk']);
+        $produk = $data['data'];
+        
+        $this->db->insert('produk', $produk);
+        $this->db->insert_id();
+
+        $json = [
+            'status' => 200,
+            'msg'    => 'Data Berhasil Ditambahkan'
+        ];
+        return $json;
+    }
+
     /* Update data produk by id */
     public function update_by_id($data){
         $this->db->where('id_produk', $data['id_produk']);
@@ -193,6 +196,17 @@ class HomeModel extends CI_Model{
 
         return [
             'msg' => 'DATA BERHASIL DI UPDATE', 
+            'status' => 200
+        ];
+    }
+
+    /* Hapus data berdasar id_produk pada table produk */
+    public function delete_by_id($id){
+        $this->db->where('id_produk', $id);
+        $query = $this->db->delete('produk');
+
+        return [
+            'msg' => 'DATA BERHASIL DI HAPUS', 
             'status' => 200
         ];
     }

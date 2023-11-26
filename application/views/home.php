@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Bootstrap demo</title>
+    <title><?= SITE_NAME ?></title>
 
     <link rel="stylesheet" href="https://cdn.datatables.net/1.13.7/css/jquery.dataTables.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
@@ -35,12 +35,13 @@
                     <!-- End Flash data     -->
 
                     <div class="d-flex m-3">
-                        <!-- <div class="col-md-6">
+                        <div class="col-md-6">
                             <button class="btn btn-warning" type="button" id="sync_button">Syncron Produk</button>
-                        </div> -->
-                        <div class="col-md-12" style="text-align:end;">
+                        </div>
+                        <div class="col-md-6" style="text-align:end;">
                             <button type="button" class="btn btn-primary" data-bs-toggle="modal"
-                                data-bs-target="#modal_add_produk" data-bs-whatever="Add Produk">Add Produk</button>
+                                data-bs-target="#_modal" data-bs-whatever="Add Produk" id="add_produk">Add
+                                Produk</button>
                         </div>
                     </div>
                     <table id="_data" class="display table table-bordered">
@@ -60,55 +61,12 @@
         </div>
     </div>
 
-    <div class="toast-container position-fixed top-0 end-0 end-0 p-3">
-        <div id=" liveToast" class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-            <div class="toast-body text-bg-danger">
-                Hello, world! This is a toast message.
-            </div>
-        </div>
-    </div>
-
-
-    <!-- Model Add Produk -->
-    <div class="modal fade" id="modal_add_produk" tabindex="-1" aria-labelledby="modal_add_produkLabel"
-        aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="modal_add_produkLabel">Add New Produk </h1>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <form>
-                        <div class="mb-3">
-                            <label for="recipient-name" class="col-form-label">Nama Produk</label>
-                            <input type="text" class="form-control" id="recipient_name">
-                        </div>
-                        <div class="mb-3">
-                            <label for="message-text" class="col-form-label">Kategori Produk</label>
-                            <input type="text" type="text" class="form-control" id="kategori">
-                        </div>
-                        <div class="mb-3">
-                            <label for="message-text" class="col-form-label">Harga</label>
-                            <input type="text" name="harga" id="harga" class="form-control">
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" id="simpan">Simpan</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
     <!-- Model Edit Produk -->
-    <div class="modal fade" id="modal_edit_produk" tabindex="-1" aria-labelledby="modal_edit_produkLabel"
-        aria-hidden="true">
+    <div class="modal fade" id="_modal" tabindex="-1" aria-labelledby="_modalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="modal_edit_produkLabel">Edit Produk</h1>
+                    <h1 class="modal-title fs-5" id="_modalLabel">Edit Produk</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body mb-3">
@@ -117,34 +75,49 @@
                             <strong class="msg_erros"></strong>.
                         </div>
                     </div>
-                    <form style="margin-bottom:50px">
+                    <form style="margin-bottom:50px" id="form_produk">
                         <div class="mb-3">
-                            <label for="recipient-name" class="col-form-label">Nama Produk</label>
-                            <input type="text" name="nama_produk_edit" class="form-control">
+                            <label class="col-form-label">Nama Produk</label>
+                            <input type="text" name="nama_produk" class="form-control" value="">
                             <div class="invalid-feedback msg-invalid"></div>
                         </div>
                         <div class="mb-3">
-                            <label for="message-text" class="col-form-label">Kategori Produk</label>
-                            <select class="form-select" aria-label="Default select example" id="kategori_edit"></select>
+                            <label class="col-form-label">Kategori Produk</label>
+                            <select class="form-select kategori" aria-label="Default select example" name="kategori">
+                                <option value="0">- Pilih Kategori -</option>
+                                <?php foreach ($kategori['data'] as $value) { ?>
+
+                                <option value="<?= $value->id_kategori; ?>"> <?= $value->nama_kategori ?></option>
+
+                                <?php }?>
+                            </select>
                         </div>
                         <div class="mb-3">
-                            <label for="message-text" class="col-form-label">Harga</label>
-                            <input type="text" name="harga_edit" id="harga_edit" class="form-control">
+                            <label class="col-form-label">Harga</label>
+                            <input type="text" name="harga" class="form-control" value="">
                             <div class="invalid-feedback msg-invalid"></div>
                         </div>
                         <div class="mb-3">
-                            <label for="message-text" class="col-form-label">Status</label>
-                            <select class="form-select" aria-label="Default select example" id="status"></select>
+                            <label class="col-form-label">Status</label>
+                            <select class="form-select" aria-label="Default select example" id="status">
+                                <?php foreach ($status['data'] as $value) { ?>
+
+                                <option value="<?= $value->id_status; ?>"> <?= $value->status ?></option>
+
+                                <?php }?>
+                            </select>
                         </div>
                     </form>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-warning" id="update_button">Update</button>
+                    <button type="button" class="btn btn-primary" id="save">Save</button>
                 </div>
             </div>
         </div>
     </div>
+
+    <input type="hidden" name="id" id="id_produk_hidden">
 
 
     <script src="https://code.jquery.com/jquery-3.7.0.js"></script>
@@ -166,36 +139,46 @@
                 1000); // Fadeto(s) untuk durasi lamanya alert, slideup(kecepatan alert hide)
         });
 
-        $('#modal_edit_produk').on('hidden.bs.modal', function() {
-            $('.form-control').removeClass('is-invalid')
-            $('.msg-invalid').hide()
-        });
-
-
         // Tombol update produk pada modal
-        $('#update_button').on('click', function(e) {
-            e.preventDefault();
-            let id = $(this).attr('data-id')
+        $('#sync_button').on('click', function() {
+            $.get('<?= site_url('hit-api') ;?>', // url untuk GET Controller
+                function(data, textStatus, jqXHR) { // success callback
+                    window.location.reload()
+                });
+        })
 
-            let data = {
-                id_produk: id,
-                nama_produk_edit: $('input[name=nama_produk_edit]').val(),
-                harga_edit: $('#harga_edit').val(),
-                kategori_edit: $('#kategori_edit').val(),
+        $('#add_produk').on('click', function() {
+            $('#id_produk_hidden').val(0)
+        })
+
+        $('#save').on('click', function(e) {
+            e.preventDefault();
+            let data;
+            let id = $('#id_produk_hidden').val()
+
+            data = {
+                nama_produk: $('input[name=nama_produk]').val(),
+                harga: $('input[name=harga').val(),
+                kategori: $('.kategori').val(),
                 status: $('#status').val(),
             };
 
+            if (!id == 0) {
+                data.id_produk = id
+            }
+
             $.ajax({
-                url: '<?= base_url('home/update_by_id');?>',
+                url: '<?= base_url('home/update_or_save');?>',
                 method: 'POST',
                 dataType: 'JSON',
                 data: data,
                 success: function(res) {
                     $('.form-control').removeClass('is-invalid')
-                    // $('.msg-invalid').hide()
 
+                    console.log(res);
+                    // Jika code status yang di dapat 200
                     if (res.status == 200) {
-                        $('#modal_edit_produk').modal('hide')
+                        $('#_modal').modal('hide')
                         window.location.reload();
                     } else {
                         for (let i = 0; i < res.inputerror.length; i++) {
@@ -208,6 +191,11 @@
                 }
             })
         })
+
+        $('#_modal').on('hidden.bs.modal', function() {
+            $('.form-control').removeClass('is-invalid')
+            $('#form_produk').trigger('reset')
+        });
     })
 
     function loadData() {
@@ -277,30 +265,9 @@
         });
     }
 
-    // function update(id) {
-    //     let data = {
-    //         id_produk: id,
-    //         nama_produk: $('#nama_produk_edit').val(),
-    //         harga: $('#harga_edit').val(),
-    //         kategori: $('#kategori_edit').val(),
-    //         status: $('#status').val(),
-    //     };
-
-    //     $.ajax({
-    //         url: '<?= base_url('home/update_by_id');?>',
-    //         method: 'POST',
-    //         dataType: 'JSON',
-    //         data: data,
-    //         success: function(res) {
-    //             console.log(res);
-    //         }
-    //     })
-    // }
-
     function edit_produk(id) {
-        $('#update_button').attr('data-id', id)
         $('.msg-invalid').attr('data-id', id)
-
+        $('#id_produk_hidden').val(id)
         $.ajax({
             url: '<?= base_url('home/get_by_id') ?>',
             method: 'POST',
@@ -312,28 +279,14 @@
                 let html = '<option value="0">- Pilih Status -</option>';
 
                 if (res.status == 200) {
-                    res.kategori.data.forEach(data => {
-                        html += '<option value="' + data.id_kategori +
-                            '">' + data.nama_kategori + '</option>';
-                    });
-                    $('#kategori_edit').append(html);
-
-                    // reset var/kosongkan var untuk digunakan di field status
-                    html = '';
-                    res.status_produk.data.forEach(data => {
-                        html += '<option value="' + data.id_status +
-                            '">' + data.status + '</option>';
-                    })
-                    $('#status').append(html);
-
                     // Menampilkan modal 
-                    $('#modal_edit_produk').modal('show')
+                    $('#_modal').modal('show')
 
                     // isi tiap field form edit
                     res.data.forEach(data => {
-                        $('input[name=nama_produk_edit]').val(data.nama_produk);
-                        $('#kategori_edit').val(data.kategori_id);
-                        $('#harga_edit').val(data.harga);
+                        $('input[name=nama_produk]').val(data.nama_produk);
+                        $('.kategori').val(data.kategori_id);
+                        $('input[name=harga]').val(data.harga);
                         $('#status').val(data.status_id);
                     });
                 } else {

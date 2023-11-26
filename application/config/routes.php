@@ -56,8 +56,5 @@ $route['default_controller'] = 'Home';
 /* Routes untuk nembak API dan insert ke databse untuk pertama kali */
 $route['hit-api'] = 'home/store_data';
 
-$route['tes'] = 'home/get_datatable';
-
-
 // $route['404_override'] = '';
 // $route['translate_uri_dashes'] = FALSE;
