@@ -37,8 +37,11 @@
                     <div class="d-flex m-3">
                         <div class="col-md-6">
                             <button class="btn btn-warning" type="button" id="sync_button">Syncron Produk</button>
+                            <button class="btn btn-primary" type="button" id="semua_data">Semua Data</button>
+                            <button class="btn btn-info" type="button" id="data_terjual">Data Terjual</button>
+                            <input type="hidden" name="status_hidden" id="status_data">
                         </div>
-                        <div class="col-md-6" style="text-align:end;">
+                        <div class=" col-md-6" style="text-align:end;">
                             <button type="button" class="btn btn-primary" data-bs-toggle="modal"
                                 data-bs-target="#_modal" data-bs-whatever="Add Produk" id="add_produk">Add
                                 Produk</button>
@@ -129,7 +132,6 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script type="text/javascript">
     $(document).ready(function() {
-        loadData();
         setTimeout(function() {
             $("#alert_message").fadeTo(2000, 1).slideUp(
                 1000); // Fadeto(s) untuk durasi lamanya alert, slideup(kecepatan alert hide)
@@ -145,6 +147,16 @@
 
         $('#add_produk').on('click', function() {
             $('#id_produk_hidden').val(0)
+        })
+
+        $('#data_terjual').on('click', function() {
+            $('#status_data').val(1)
+            loadData();
+        })
+
+        $('#semua_data').on('click', function() {
+            $('#status_data').val(0)
+            loadData();
         })
 
         $('#save').on('click', function(e) {
@@ -192,13 +204,19 @@
             $('.form-control').removeClass('is-invalid')
             $('#form_produk').trigger('reset')
         });
+
+        loadData();
     })
 
     function loadData() {
+        let status_data = $('#status_data').val();
+        console.log(status_data);
+
         $('#_data').DataTable({
             processing: true,
             serveside: true,
             searching: false,
+            bDestroy: true,
             aoColumnDefs: [{
                 "bSortable": false,
                 "aTargets": ["_all"],
@@ -207,7 +225,10 @@
             'ajax': {
                 url: '<?= base_url('home/get_datatable')?>',
                 type: 'POST',
-                dataTYpe: 'json'
+                dataType: 'JSON',
+                data: {
+                    status_data: status_data
+                }
             },
             columns: [{
                 data: 'no',
@@ -228,9 +249,9 @@
                 visible: true
             }, ]
         });
-        setTimeout(function() {
-            $("#_data th").removeClass("sorting_asc");
-        }, 1000);
+        // setTimeout(function() {
+        //     $("#_data th").removeClass("sorting_asc");
+        // }, 1000);
     }
 
     function delete_produk(id) {

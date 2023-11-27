@@ -61,12 +61,18 @@ class HomeModel extends CI_Model{
                 $this->db->insert('produk', $produk);
                 $this->db->insert_id();
             }
-        }
 
-        // return [
-        //     'msg'       => 'Data Syncron Berhasil',
-        //     'status'    => 200
-        // ];
+            return [
+                'msg'       => 'Data syncron berhasil',
+                'status'    => 200
+            ];
+            exit();
+        }
+        
+        return [
+            'msg'       => 'Data sudah ada',
+            'status'    => 200
+        ];
     } 
 
     /*======================== CEK & INSERT JIKA TABLE KATEGORI DAN STATUS KOSONG ===========================*/
@@ -93,12 +99,55 @@ class HomeModel extends CI_Model{
         }
     }
 
+    /* Add produk baru ke table produk */
+    public function save($data){
+        unset($data['id_produk']);
+        $produk = $data['data'];
+        
+        $this->db->insert('produk', $produk);
+        $this->db->insert_id();
+
+        $json = [
+            'status' => 200,
+            'msg'    => 'Data Berhasil Ditambahkan'
+        ];
+        return $json;
+    }
+
+    /* Update data produk by id */
+    public function update_by_id($data){
+        $this->db->where('id_produk', $data['id_produk']);
+        $this->db->update('produk', $data['data']);
+
+        return [
+            'msg' => 'DATA BERHASIL DI UPDATE', 
+            'status' => 200
+        ];
+    }
+
+    /* Hapus data berdasar id_produk */
+    public function delete_by_id($id){
+        $this->db->where('id_produk', $id);
+        $query = $this->db->delete('produk');
+
+        return [
+            'msg' => 'DATA BERHASIL DI HAPUS', 
+            'status' => 200
+        ];
+    }
+
     /* Get data untuk di tamplikan ke view menggunakan dataTable */
-    public function get_datatable(){
-        $this->db->from('produk');
-        $this->db->where(array('status_id' => '1')); /* tampilkan hanya 'status' = 'dijual' */
-        $this->db->order_by('id_produk', 'DESC');
-        $query = $this->db->get();
+    public function get_datatable($id){
+
+        if ($id == 1) {
+            $this->db->from('produk');
+            $this->db->where(array('status_id' => $id)); /* tampilkan hanya 'status' = 'dijual' */
+            $this->db->order_by('id_produk', 'DESC');
+            $query = $this->db->get();
+        } else {
+            $this->db->order_by('id_produk', 'DESC');
+            $query = $this->db->get('produk');
+        } 
 
         $data = [];
         foreach ($query->result() as $key => $value) {
@@ -116,7 +165,7 @@ class HomeModel extends CI_Model{
         return $json;
     }
 
-    /* Mencari nama kategori berdasarkan id_kategori */
+    /* Mencari nama kategori di table kategori by id_kategori */
     public function kategori_name($id){
         $query = $this->db->get_where('kategori', array('id_kategori' => $id));
         
@@ -158,7 +207,7 @@ class HomeModel extends CI_Model{
         return $json;
     }
 
-    /* Get daya bersarakna id_produk */
+    /* Get produk berdasarkan id_produk */
     public function get_by_id($id){
         $this->db->where('id_produk', $id);
         $query = $this->db->get('produk');
@@ -173,41 +222,5 @@ class HomeModel extends CI_Model{
         }
 
         return $json;
-    }
-
-    public function save($data){
-        unset($data['id_produk']);
-        $produk = $data['data'];
-        
-        $this->db->insert('produk', $produk);
-        $this->db->insert_id();
-
-        $json = [
-            'status' => 200,
-            'msg'    => 'Data Berhasil Ditambahkan'
-        ];
-        return $json;
-    }
-
-    /* Update data produk by id */
-    public function update_by_id($data){
-        $this->db->where('id_produk', $data['id_produk']);
-        $this->db->update('produk', $data['data']);
-
-        return [
-            'msg' => 'DATA BERHASIL DI UPDATE', 
-            'status' => 200
-        ];
-    }
-
-    /* Hapus data berdasar id_produk pada table produk */
-    public function delete_by_id($id){
-        $this->db->where('id_produk', $id);
-        $query = $this->db->delete('produk');
-
-        return [
-            'msg' => 'DATA BERHASIL DI HAPUS', 
-            'status' => 200
-        ];
     }
 }

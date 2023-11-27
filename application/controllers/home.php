@@ -6,16 +6,18 @@ class home extends CI_Controller
 
     public function __construct(){
         parent::__construct();
+        
         $model = __class__.'Model';
         $this->load->model('HomeModel');
         $this->model = new $model();
+        
     }
-
+    
     public function index()
     {
         $query['kategori'] = $this->model->get_kategori();
         $query['status'] = $this->model->get_status();
-
+        
         $this->load->view('home', $query);
     }
 
@@ -59,7 +61,9 @@ class home extends CI_Controller
 
     public function store_data()
     {
+        // Response dari API
         $data = $this->data();
+
         $kategori   = [];
         $status     = [];
     
@@ -77,14 +81,16 @@ class home extends CI_Controller
         $json_data = array('kategori' => $kategori, 'status' => $status, 'produk' => $data['data']);
         $data_store = $this->model->store_data($json_data);
 
-        $this->session->set_flashdata('status', 200);
-        $this->session->set_flashdata('msg','Berhasil Syncron dengan API dan insert ke database');
+        $this->session->set_flashdata('status', $data_store['status']);
+        $this->session->set_flashdata('msg',$data_store['msg']);
 
-        echo json_encode($json['status'] =200);
+        echo json_encode($data_store['status']);
     }
 
     public function get_datatable(){
-        $result_data = $this->model->get_dataTable();
+        $id = $_POST['status_data'];
+
+        $result_data = $this->model->get_dataTable($id);
 
         $json = [
             'recordsTotal'      => $result_data['total_data'],
