@@ -59,6 +59,7 @@ class home extends CI_Controller
         return json_decode($response, true);
     }
 
+    // store data dari tombol sync
     public function store_data()
     {
         // Response dari API
@@ -67,6 +68,7 @@ class home extends CI_Controller
         $kategori   = [];
         $status     = [];
     
+        //Group berdasarkan kategori dan status dari data API
         foreach ($data['data'] as $key => $value) {
             $kategori[$value['kategori']][] = array(
                 'id_produk' => $value['id_produk'],

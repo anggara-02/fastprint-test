@@ -14,15 +14,18 @@ class HomeModel extends CI_Model{
         $get_status = $this->db->get('status')->result();
         $get_kategori = $this->db->get('kategori')->result();
         
-        /* Cek jika table produk kosong maka insert data */ 
         $query_produk   = $this->db->get('produk');
+        
+        /* Cek jika table produk kosong maka insert data */ 
         if ($query_produk->num_rows() <= 0 ) {
+
             /*  Bentuk array untuk mencari id kategori dan id status untuk data produk 
                 ==> Looping untuk merubah value 'kategori' menjadi 'id_kategori' yang didapat dari table kategori. 
                     Jika kategori pada produk sama dengan nama kategori pada table kategori, maka 'kategori' => id_kategori.
                 ==> Untuk mencari id_statu sama dnegan mencari id_kategori hanya saja yang digunakan untuk looping adalah
                     array dari kategori yang sudah di looping sebelumnya. 
             */
+            
             foreach($json_data['produk'] as $key => $row) {
                 foreach ($get_kategori as $value_kategori) {
                     /* Jika kategori sama dengan nama kategori pada table kategori*/

@@ -139,7 +139,7 @@
 
         // Tombol update produk pada modal
         $('#sync_button').on('click', function() {
-            $.get('<?= site_url('hit-api') ;?>', // url untuk GET Controller
+            $.get('<?= base_url('home/store_data') ;?>', // url untuk GET Controller
                 function(data, textStatus, jqXHR) { // success callback
                     window.location.reload()
                 });
