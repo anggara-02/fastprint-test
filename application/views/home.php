@@ -145,20 +145,24 @@
                 });
         })
 
+        //tombol add produk baru
         $('#add_produk').on('click', function() {
             $('#id_produk_hidden').val(0)
         })
 
+        //tombol menampilkan produk terjual saja
         $('#data_terjual').on('click', function() {
             $('#status_data').val(1)
             loadData();
         })
 
+        //tombol menampilkan semua data
         $('#semua_data').on('click', function() {
             $('#status_data').val(0)
             loadData();
         })
 
+        //fungsi tombol save atau update
         $('#save').on('click', function(e) {
             e.preventDefault();
             let data;
@@ -210,8 +214,7 @@
 
     function loadData() {
         let status_data = $('#status_data').val();
-        console.log(status_data);
-
+        
         $('#_data').DataTable({
             processing: true,
             serveside: true,

@@ -17,27 +17,36 @@ class home extends CI_Controller
     {
         $query['kategori'] = $this->model->get_kategori();
         $query['status'] = $this->model->get_status();
-        
+
         $this->load->view('home', $query);
     }
 
     public function data()
     {
-        date_default_timezone_set('Asia/Singapore');
-        
-        $time = date('H');
+        /* Karena username dan passsword selalu berganti berdasarkan tanggal-bulan-dan tahun dan juga jam untuk username
+            maka, saya memberikan timezone default. Menggunkan wilayah SSingapura karena ketika saya menggunakan wilayah Asia/Jakarta
+            akan terjadi selisih 1 jam dari waktu server (*yang sudah di jelaskan pada soal).
+        */
 
+        date_default_timezone_set('Asia/Singapore');
+
+        $time = date('H');
+        
         $tanggal    = date('d');
         $bulan      = date('m');
         $tahun      = date('y');
-
+        
+        /* 
+        format username :  'testprogrammer{tgl}{bln}{thn}C{jam}'
+        format password : 'bisadocing-{tgl}-{bln}-{thn}'
+        */
         $username = 'tesprogrammer' . $tanggal . $bulan . $tahun . 'C' . $time;
-        $password = 'bisacoding-' . $tanggal . '-' . $bulan . '-' . $tahun;
-        $password = md5($password);
-
+        $passwords = 'bisacoding-' . $tanggal . '-' . $bulan . '-' . $tahun;
+        $password = md5($passwords);
+        
         $curl = curl_init();
         curl_setopt_array($curl, array(
-            CURLOPT_URL => 'https://recruitment.fastprint.co.id/tes/api_tes_programmer',
+            CURLOPT_URL => 'https://recruitment.fastprint.co.id/tes/api_tes_programmer', /* Link API */
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => '',
             CURLOPT_MAXREDIRS => 10,
@@ -46,7 +55,7 @@ class home extends CI_Controller
             CURLOPT_SSL_VERIFYHOST => 0,
             CURLOPT_FOLLOWLOCATION => true,
             CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => 'POST',
+            CURLOPT_CUSTOMREQUEST => 'POST', /* Methodnya menggunkan */
             CURLOPT_POSTFIELDS => array('username' => $username, 'password' => $password),
             CURLOPT_HTTPHEADER => array(
                 'Cookie: ci_session=2439h7cgksqnhoocepkdsk820i6i8vhh'
@@ -59,7 +68,7 @@ class home extends CI_Controller
         return json_decode($response, true);
     }
 
-    // store data dari tombol sync
+    // store data dari tombol sync 
     public function store_data()
     {
         // Response dari API
@@ -73,7 +82,8 @@ class home extends CI_Controller
             $kategori[$value['kategori']][] = array(
                 'id_produk' => $value['id_produk'],
                 'nama_produk' => $value['nama_produk'],
-            );  
+            );
+              
             $status[$value['status']][]   = array(
                 'id_produk' => $value['id_produk'],
                 'nama_produk' => $value['nama_produk'],
@@ -89,6 +99,7 @@ class home extends CI_Controller
         echo json_encode($data_store['status']);
     }
 
+    //Untuk ambil data untuk kebutuhan dataTable
     public function get_datatable(){
         $id = $_POST['status_data'];
 
@@ -116,6 +127,7 @@ class home extends CI_Controller
         echo json_encode($json);
     }
 
+    //Hapus produk berdasarkan id
     public function delete_by_id(){
         $id = $_POST['id_produk'];    
         $query = $this->model->delete_by_id($id);
@@ -126,6 +138,7 @@ class home extends CI_Controller
         echo json_encode($query);
     }
 
+    //Fungsi untuk update atau save
     public function update_or_save(){
         // Validasi terlebih dahulu
         $this->validation();
@@ -137,6 +150,7 @@ class home extends CI_Controller
             'status_id'     => $_POST['status']
         );
 
+        // Jika update akan membawa ID dan bernilai 1 jika tidak akan dilakaukan save data produk baru
         if ($_POST['id_produk'] == 0) {
             $query = $this->model->save($data_update);
         }else{
@@ -150,6 +164,7 @@ class home extends CI_Controller
         echo json_encode($query);
     }
 
+    // Untuk modal ketika button edit di tekan
     public function get_by_id(){
         $id = $_POST['id_produk'];
         $query = $this->model->get_by_id($id);
@@ -162,6 +177,7 @@ class home extends CI_Controller
         echo json_encode($query);
     }
 
+    // Validasi untuk form pada modal
     public function validation(){
         $json = array();
         $json['inputerror'] = array();
